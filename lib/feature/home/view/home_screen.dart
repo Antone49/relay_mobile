@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:provider/provider.dart';
 
-import '../../../core/theme/app_style.dart';
 import '../../../core/utils/color_constant.dart';
+import '../../../core/utils/image_constant.dart';
+import '../../common/view/widgets/custom_image_view.dart';
+import '../viewmodel/bluetooth_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +20,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    Provider.of<BluetoothViewModel>(context, listen: false).scanDevice();
   }
 
   @override
@@ -32,19 +37,33 @@ class HomeScreenState extends State<HomeScreen> {
   Widget stateWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(60),
-      child: Column(
+      child: Center(
+    child:Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
-          Text(
-              "lbl_error".tr,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: AppStyle.fontBlack16,
-              maxLines: 5
+          CustomImageView(
+            height: 200,
+            svgPath: ImageConstant.imgArrowUp,
+            onTap: () {
+              ;
+            },
+          ),
+          const SizedBox(height: 100),
+          CustomImageView(
+            height: 200,
+            svgPath: ImageConstant.imgArrowDown,
+            onTap: () {
+              List<BluetoothDevice> devs = FlutterBluePlus.connectedDevices;
+              for (var d in devs) {
+                if (kDebugMode) {
+                  print(d);
+                }
+              }
+            },
           ),
         ],
+      ),
       ),
     );
   }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <clipPath id="e">
+   <path d="m160 100c0 44.183-35.817 80-80 80s-80-35.817-80-80 35.817-80 80-80 80 35.817 80 80z"/>
+  </clipPath>
+  <filter id="c">
+   <feGaussianBlur stdDeviation="2.8"/>
+  </filter>
+  <filter id="d">
+   <feGaussianBlur stdDeviation="2"/>
+  </filter>
+  <linearGradient id="b" x1="55" x2="105" y1="75" y2="125" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#fff" offset="0"/>
+   <stop stop-color="#fff" offset=".7"/>
+   <stop stop-color="#ccc" offset="1"/>
+  </linearGradient>
+  <radialGradient id="a" cx="86" cy="106" r="84" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#05a027" offset="0"/>
+   <stop stop-color="#05a027" offset=".8"/>
+   <stop stop-color="#05a027" offset="1"/>
+  </radialGradient>
+ </defs>
+ <path d="m145.41 7.8125-65.75 87.594-24.656-24.656-29.25 29.25 54.562 54.562 93.875-125.16-28.781-21.594z" fill="#686868" fill-opacity=".5" filter="url(#d)"/>
+ <path d="m160 100c0 44.183-35.817 80-80 80s-80-35.817-80-80 35.817-80 80-80 80 35.817 80 80z" fill="url(#a)"/>
+ <path d="m148 8-65.531 87.406-24.469-24.469-32.062 32.062 57.594 57.625 96.469-128.62-32-24z" clip-path="url(#e)" fill="#686868" fill-opacity=".5" filter="url(#c)"/>
+ <path d="m55 75-25 25 50 50 90-120-24-18-66 88-25-25z" fill="url(#b)"/>
+</svg>

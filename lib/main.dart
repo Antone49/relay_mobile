@@ -7,7 +7,7 @@ import 'core/app_export.dart';
 import 'core/localization/app_localization.dart';
 import 'core/utils/initial_bindings.dart';
 import 'core/utils/logger.dart';
-import 'feature/home/viewmodel/products_view_model.dart';
+import 'feature/home/viewmodel/bluetooth_view_model.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => ProductsViewModel()),
+          ChangeNotifierProvider(create: (_) => BluetoothViewModel()),
         ],
         child: GetMaterialApp(
           debugShowCheckedModeBanner: false,

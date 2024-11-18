@@ -163,4 +163,20 @@ class AppStyle {
     fontFamily: 'Imprima',
     fontWeight: FontWeight.w400,
   );
+  static TextStyle fontRed20 = TextStyle(
+    color: ColorConstant.red,
+    fontSize: getFontSize(
+      30,
+    ),
+    fontFamily: 'Imprima',
+    fontWeight: FontWeight.w600,
+  );
+  static TextStyle fontGreen20 = TextStyle(
+    color: ColorConstant.green,
+    fontSize: getFontSize(
+      30,
+    ),
+    fontFamily: 'Imprima',
+    fontWeight: FontWeight.w600,
+  );
 }

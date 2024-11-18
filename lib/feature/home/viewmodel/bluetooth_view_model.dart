@@ -1,50 +1,89 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
+import '../../../service/storage/storage_service.dart';
 
 class BluetoothViewModel with ChangeNotifier {
+  bool dataReady = false;
+  ValueNotifier<bool> isConnected = ValueNotifier<bool>(false);
+  List<BluetoothDevice>? bondedDevices;
+  BluetoothDevice? device;
+  BluetoothCharacteristic? lastCharacteristic;
+
   BluetoothViewModel() {
-    scanDevice();
+    if (Platform.isAndroid) {
+      FlutterBluePlus.turnOn();
+    }
   }
 
-  Future<void> scanDevice() async {
-    if (await FlutterBluePlus.isSupported == false) {
-      print("Bluetooth not supported by this device");
-      return;
+  Future<void> connectDefaultDevice() async {
+    String? address = await StorageService().read("ADDRESS");
+    if(address != null && device?.remoteId.str != address) {
+      connectDevice(address);
+    }
+  }
+
+  Future<void> saveDevice(String address) async {
+      StorageService().write("ADDRESS", address);
+  }
+
+  Future<void> connectDevice(String address) async {
+    if(device!= null && device!.isConnected) {
+      device!.disconnect();
     }
 
-// handle bluetooth on & off
-// note: for iOS the initial state is typically BluetoothAdapterState.unknown
-// note: if you have permissions issues you will get stuck at BluetoothAdapterState.unauthorized
-    var subscription = FlutterBluePlus.adapterState.listen((
-        BluetoothAdapterState state) {
-      print(state);
-      if (state == BluetoothAdapterState.on) {
-        // usually start scanning, connecting, etc
+    device = BluetoothDevice.fromId(address);
+    await device?.connect(autoConnect : true, mtu:null);
+
+    FlutterBluePlus.events.onConnectionStateChanged.listen((event) async {
+      print('${event.device} ${event.connectionState}');
+
+      if(event.connectionState == BluetoothConnectionState.connected && device!.isConnected) {
+        List<BluetoothService> services = await device!.discoverServices();
+        lastCharacteristic = services.last.characteristics.last;
+        lastCharacteristic?.setNotifyValue(true);
+        isConnected.value = true;
       } else {
-        // show an error to the user, etc
+        isConnected.value = false;
       }
-    });
-
-// turn on bluetooth ourself if we can
-// for iOS, the user controls bluetooth enable/disable
-    // if (Platform.isAndroid) {
-    await FlutterBluePlus.turnOn();
-    // }
-
-// cancel to prevent duplicate listeners
-    subscription.cancel();
-
-    var subscription2 = FlutterBluePlus.onScanResults.listen((results) {
-      if (results.isNotEmpty) {
-        ScanResult r = results.last; // the most recently found device
-        print('${r.device.remoteId}: "${r.advertisementData.advName}" found!');
-      }
-    },
-      onError: (e) => print(e),
+    }
     );
+  }
 
-// cleanup: cancel subscription when scanning stops
-    FlutterBluePlus.cancelWhenScanComplete(subscription2);
+  void fetchBondedDevices() async {
+    bondedDevices?.clear();
+    bondedDevices = await FlutterBluePlus.bondedDevices;
+
+    checkDataReady();
+  }
+
+  void fetchData() {
+    dataReady = false;
+
+    fetchBondedDevices();
+  }
+
+  void clearData() {
+    bondedDevices = null;
+  }
+
+  void checkDataReady() {
+    dataReady = bondedDevices != null;
+
+    if(dataReady) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> write(String text) async {
+    if (device != null && device!.isConnected) {
+      await lastCharacteristic?.write(utf8.encode(text));
+    } else {
+      print('Bluetooth no connection');
+    }
   }
 }

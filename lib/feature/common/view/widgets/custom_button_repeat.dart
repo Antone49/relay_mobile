@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CustomButtonRepeat extends StatelessWidget {
+class CustomButtonRepeat extends StatefulWidget {
   ///[url] is required parameter for fetching network image
   String? url;
 
@@ -53,34 +53,69 @@ class CustomButtonRepeat extends StatelessWidget {
     this.placeHolder = 'assets/images/image_not_found.png',
   });
 
+  @override
+  _CustomButtonRepeatState createState() => _CustomButtonRepeatState();
+}
+
+class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    // Add the widget as an observer to listen to lifecycle events
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer when the widget is disposed
+    widget._timer?.cancel();
+    // Remove the observer when disposing the widget
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      // Cancel the timer when the app is in the background
+      widget._timer?.cancel();
+    } else if (state == AppLifecycleState.resumed) {
+      // Optionally, you could restart the timer or handle actions when the app resumes
+      // But in this case, we don't need to restart the timer when the app comes back to the foreground.
+    }
+  }
+
   void _handleTap() {
     print('Tapped!');
-    onTap!();
+    widget.onTap?.call();
   }
 
   void _startRepeating(TapDownDetails details) {
-    _timer = Timer.periodic(Duration(milliseconds: _repeatDuration), (timer) {
-      _handleTap();
+    widget._timer = Timer.periodic(Duration(milliseconds: widget._repeatDuration), (timer) {
+      if (mounted) {
+        _handleTap();
+      }
     });
   }
 
   void _stopRepeating(TapUpDetails details) {
-    _timer?.cancel();
+    widget._timer?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return alignment != null
+    return widget.alignment != null
         ? Align(
-            alignment: alignment!,
-            child: _buildWidget(),
-          )
+      alignment: widget.alignment!,
+      child: _buildWidget(),
+    )
         : _buildWidget();
   }
 
   Widget _buildWidget() {
     return Padding(
-      padding: margin ?? EdgeInsets.zero,
+      padding: widget.margin ?? EdgeInsets.zero,
       child: GestureDetector(
         onTapDown: (TapDownDetails details) => _startRepeating(details),
         onTapUp: (TapUpDetails details) => _stopRepeating(details),
@@ -89,11 +124,10 @@ class CustomButtonRepeat extends StatelessWidget {
     );
   }
 
-  ///build the image with border radius
   _buildCircleImage() {
-    if (radius != null) {
+    if (widget.radius != null) {
       return ClipRRect(
-        borderRadius: radius!,
+        borderRadius: widget.radius!,
         child: _buildImageWithBorder(),
       );
     } else {
@@ -101,13 +135,12 @@ class CustomButtonRepeat extends StatelessWidget {
     }
   }
 
-  ///build the image with border and border radius style
   _buildImageWithBorder() {
-    if (border != null) {
+    if (widget.border != null) {
       return Container(
         decoration: BoxDecoration(
-          border: border,
-          borderRadius: radius,
+          border: widget.border,
+          borderRadius: widget.radius,
         ),
         child: _buildImageView(),
       );
@@ -117,33 +150,33 @@ class CustomButtonRepeat extends StatelessWidget {
   }
 
   Widget _buildImageView() {
-    if (svgPath != null && svgPath!.isNotEmpty) {
+    if (widget.svgPath != null && widget.svgPath!.isNotEmpty) {
       return SizedBox(
-        height: height,
-        width: width,
+        height: widget.height,
+        width: widget.width,
         child: SvgPicture.asset(
-          svgPath!,
-          height: height,
-          width: width,
-          fit: fit ?? BoxFit.contain,
-          colorFilter: colorFilter,
+          widget.svgPath!,
+          height: widget.height,
+          width: widget.width,
+          fit: widget.fit ?? BoxFit.contain,
+          colorFilter: widget.colorFilter,
         ),
       );
-    } else if (file != null && file!.path.isNotEmpty) {
+    } else if (widget.file != null && widget.file!.path.isNotEmpty) {
       return Image.file(
-        file!,
-        height: height,
-        width: width,
-        fit: fit ?? BoxFit.cover,
-        color: color,
+        widget.file!,
+        height: widget.height,
+        width: widget.width,
+        fit: widget.fit ?? BoxFit.cover,
+        color: widget.color,
       );
-    } else if (url != null && url!.isNotEmpty) {
+    } else if (widget.url != null && widget.url!.isNotEmpty) {
       return CachedNetworkImage(
-        height: height,
-        width: width,
-        fit: fit,
-        imageUrl: url!,
-        color: color,
+        height: widget.height,
+        width: widget.width,
+        fit: widget.fit,
+        imageUrl: widget.url!,
+        color: widget.color,
         placeholder: (context, url) => SizedBox(
           height: 30,
           width: 30,
@@ -153,19 +186,19 @@ class CustomButtonRepeat extends StatelessWidget {
           ),
         ),
         errorWidget: (context, url, error) => Image.asset(
-          placeHolder,
-          height: height,
-          width: width,
-          fit: fit ?? BoxFit.cover,
+          widget.placeHolder,
+          height: widget.height,
+          width: widget.width,
+          fit: widget.fit ?? BoxFit.cover,
         ),
       );
-    } else if (imagePath != null && imagePath!.isNotEmpty) {
+    } else if (widget.imagePath != null && widget.imagePath!.isNotEmpty) {
       return Image.asset(
-        imagePath!,
-        height: height,
-        width: width,
-        fit: fit ?? BoxFit.cover,
-        color: color,
+        widget.imagePath!,
+        height: widget.height,
+        width: widget.width,
+        fit: widget.fit ?? BoxFit.cover,
+        color: widget.color,
       );
     }
     return const SizedBox();

@@ -47,55 +47,59 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget stateWidget(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(80),
-      child: ValueListenableBuilder<bool>(
-        valueListenable: isConnected,
-        builder: (context, value, child) {
-          return Column(
-            children: [
-              Text(
-                overflow: TextOverflow.fade,
-                maxLines: 1,
-                style: isConnected.value
-                    ? AppStyle.fontGreen20
-                    : AppStyle.fontRed20,
-                isConnected.value
-                    ? "lbl_bluetooth_connected".tr
-                    : "lbl_bluetooth_disconnected".tr
-              ),
-              const SizedBox(height: 50),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomButtonRepeat(
-                      height: 200,
-                      svgPath: isConnected.value
-                          ? ImageConstant.imgArrowUp
-                          : ImageConstant.imgArrowUpGray,
-                      onTap: () {
-                        Provider.of<BluetoothViewModel>(context, listen: false)
-                            .write("Up");
-                      },
+        padding: const EdgeInsets.all(80),
+        child: ValueListenableBuilder<bool>(
+            valueListenable: isConnected,
+            builder: (context, value, child) {
+              return Column(
+                children: [
+                  Text(
+                      overflow: TextOverflow.fade,
+                      maxLines: 1,
+                      style: isConnected.value ? AppStyle.fontGreen20 : AppStyle.fontRed20,
+                      isConnected.value
+                          ? "lbl_bluetooth_connected".tr
+                          : "lbl_bluetooth_disconnected".tr),
+                  const SizedBox(height: 50),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CustomButtonRepeat(
+                          height: 200,
+                          isConnected: isConnected.value,
+                          svgImage: ImageConstant.imgArrowUp,
+                          svgImageTouched: ImageConstant.imgArrowUpTouched,
+                          svgImageUnconnected: ImageConstant.imgArrowUpGray,
+                          onTap: () {
+                            Provider.of<BluetoothViewModel>(context, listen: false).write("Up");
+                          },
+                          onTapStop: () {
+                            Provider.of<BluetoothViewModel>(context, listen: false).write("Stop");
+                          },
+                        ),
+                        const SizedBox(height: 80),
+                        CustomButtonRepeat(
+                          height: 200,
+                          isConnected: isConnected.value,
+                          svgImage: ImageConstant.imgArrowDown,
+                          svgImageTouched: ImageConstant.imgArrowDownTouched,
+                          svgImageUnconnected: ImageConstant.imgArrowDownGray,
+                          onTap: () {
+                            Provider.of<BluetoothViewModel>(context, listen: false).write("Down");
+                          },
+                          onTapStop: () {
+                            Provider.of<BluetoothViewModel>(context, listen: false).write("Stop");
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 80),
-                    CustomButtonRepeat(
-                      height: 200,
-                      svgPath: isConnected.value
-                          ? ImageConstant.imgArrowDown
-                          : ImageConstant.imgArrowDownGray,
-                      onTap: () {
-                        Provider.of<BluetoothViewModel>(context, listen: false)
-                            .write("Down");
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        })
+                  ),
+                ],
+              );
+            }
+        )
     );
   }
 }

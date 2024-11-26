@@ -1,22 +1,15 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomButtonRepeat extends StatefulWidget {
-  ///[url] is required parameter for fetching network image
-  String? url;
-
-  ///[imagePath] is required parameter for showing png,jpg,etc image
-  String? imagePath;
-
-  ///[svgPath] is required parameter for showing svg image
-  String? svgPath;
-
-  ///[file] is required parameter for fetching image file
-  File? file;
+  String? currentSvgImage;
+  String? svgImage;
+  String? svgImageTouched;
+  String? svgImageUnconnected;
+  bool isConnected = false;
+  bool touched = false;
 
   double? height;
   double? width;
@@ -26,6 +19,7 @@ class CustomButtonRepeat extends StatefulWidget {
   final String placeHolder;
   Alignment? alignment;
   VoidCallback? onTap;
+  VoidCallback? onTapStop;
   EdgeInsetsGeometry? margin;
   BorderRadius? radius;
   BoxBorder? border;
@@ -36,10 +30,10 @@ class CustomButtonRepeat extends StatefulWidget {
   ///a [CustomButtonRepeat] it can be used for showing any type of images
   /// it will shows the placeholder image if image is not found on network image
   CustomButtonRepeat({super.key,
-    this.url,
-    this.imagePath,
-    this.svgPath,
-    this.file,
+    required this.isConnected,
+    this.svgImage,
+    this.svgImageTouched,
+    this.svgImageUnconnected,
     this.height,
     this.width,
     this.color,
@@ -47,6 +41,7 @@ class CustomButtonRepeat extends StatefulWidget {
     this.fit,
     this.alignment,
     this.onTap,
+    this.onTapStop,
     this.radius,
     this.margin,
     this.border,
@@ -69,6 +64,8 @@ class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBin
   void dispose() {
     // Cancel the timer when the widget is disposed
     widget._timer?.cancel();
+    widget._timer = null;
+    _handleTapStop();
     // Remove the observer when disposing the widget
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -80,6 +77,8 @@ class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBin
     if (state == AppLifecycleState.paused) {
       // Cancel the timer when the app is in the background
       widget._timer?.cancel();
+      widget._timer = null;
+      _handleTapStop();
     } else if (state == AppLifecycleState.resumed) {
       // Optionally, you could restart the timer or handle actions when the app resumes
       // But in this case, we don't need to restart the timer when the app comes back to the foreground.
@@ -89,24 +88,52 @@ class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBin
   void _handleTap() {
     print('Tapped!');
     widget.onTap?.call();
+    widget.touched = true;
+    _changeImage();
+  }
+
+  void _handleTapStop() {
+    print('Stop tap!');
+    widget.onTapStop?.call();
+    widget.touched = false;
+    _changeImage();
   }
 
   void _startRepeating(TapDownDetails details) {
-    widget._timer = Timer.periodic(Duration(milliseconds: widget._repeatDuration), (timer) {
-      if (mounted) {
-        _handleTap();
+    print('_startRepeating!');
+    widget._timer ??= Timer.periodic(Duration(milliseconds: widget._repeatDuration), (timer) {
+        if (mounted) {
+          _handleTap();
+        }
+      });
+  }
+
+  void _stopRepeating(TapUpDetails details) {
+    print('_stopRepeating!');
+    widget._timer?.cancel();
+    widget._timer = null;
+    _handleTapStop();
+  }
+
+  void _changeImage() {
+    setState(() {
+      if (widget.isConnected) {
+        if (widget.touched) {
+          widget.currentSvgImage = widget.svgImageTouched;
+        }  else {
+          widget.currentSvgImage = widget.svgImage;
+        }
+      }  else {
+        widget.currentSvgImage = widget.svgImageUnconnected;
       }
     });
   }
 
-  void _stopRepeating(TapUpDetails details) {
-    widget._timer?.cancel();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return widget.alignment != null
-        ? Align(
+    _changeImage();
+
+    return widget.alignment != null ? Align(
       alignment: widget.alignment!,
       child: _buildWidget(),
     )
@@ -150,55 +177,17 @@ class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBin
   }
 
   Widget _buildImageView() {
-    if (widget.svgPath != null && widget.svgPath!.isNotEmpty) {
+    if (widget.currentSvgImage != null && widget.currentSvgImage!.isNotEmpty) {
       return SizedBox(
         height: widget.height,
         width: widget.width,
         child: SvgPicture.asset(
-          widget.svgPath!,
+          widget.currentSvgImage!,
           height: widget.height,
           width: widget.width,
           fit: widget.fit ?? BoxFit.contain,
           colorFilter: widget.colorFilter,
         ),
-      );
-    } else if (widget.file != null && widget.file!.path.isNotEmpty) {
-      return Image.file(
-        widget.file!,
-        height: widget.height,
-        width: widget.width,
-        fit: widget.fit ?? BoxFit.cover,
-        color: widget.color,
-      );
-    } else if (widget.url != null && widget.url!.isNotEmpty) {
-      return CachedNetworkImage(
-        height: widget.height,
-        width: widget.width,
-        fit: widget.fit,
-        imageUrl: widget.url!,
-        color: widget.color,
-        placeholder: (context, url) => SizedBox(
-          height: 30,
-          width: 30,
-          child: LinearProgressIndicator(
-            color: Colors.grey.shade200,
-            backgroundColor: Colors.grey.shade100,
-          ),
-        ),
-        errorWidget: (context, url, error) => Image.asset(
-          widget.placeHolder,
-          height: widget.height,
-          width: widget.width,
-          fit: widget.fit ?? BoxFit.cover,
-        ),
-      );
-    } else if (widget.imagePath != null && widget.imagePath!.isNotEmpty) {
-      return Image.asset(
-        widget.imagePath!,
-        height: widget.height,
-        width: widget.width,
-        fit: widget.fit ?? BoxFit.cover,
-        color: widget.color,
       );
     }
     return const SizedBox();

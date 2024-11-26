@@ -7,7 +7,9 @@ class ImageConstant {
   static const String imgInformation = 'assets/images/information.svg';
   static const String imgErrorNotFound = 'assets/images/error_not_found.svg';
   static const String imgArrowUp = 'assets/images/arrowUp.svg';
-  static const String imgArrowDown = 'assets/images/arrowDown.svg';
+  static const String imgArrowUpTouched = 'assets/images/arrowUpTouched.svg';
   static const String imgArrowUpGray = 'assets/images/arrowUpGray.svg';
+  static const String imgArrowDown = 'assets/images/arrowDown.svg';
+  static const String imgArrowDownTouched = 'assets/images/arrowDownTouched.svg';
   static const String imgArrowDownGray = 'assets/images/arrowDownGray.svg';
 }

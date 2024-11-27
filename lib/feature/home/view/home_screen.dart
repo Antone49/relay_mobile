@@ -76,7 +76,7 @@ class HomeScreenState extends State<HomeScreen> {
                             Provider.of<BluetoothViewModel>(context, listen: false).write("Up");
                           },
                           onTapStop: () {
-                            Provider.of<BluetoothViewModel>(context, listen: false).write("Stop");
+                            Provider.of<BluetoothViewModel>(context, listen: false).write("UpStop");
                           },
                         ),
                         const SizedBox(height: 80),
@@ -90,7 +90,7 @@ class HomeScreenState extends State<HomeScreen> {
                             Provider.of<BluetoothViewModel>(context, listen: false).write("Down");
                           },
                           onTapStop: () {
-                            Provider.of<BluetoothViewModel>(context, listen: false).write("Stop");
+                            Provider.of<BluetoothViewModel>(context, listen: false).write("DownStop");
                           },
                         ),
                       ],

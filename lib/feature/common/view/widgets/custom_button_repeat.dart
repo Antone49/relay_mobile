@@ -99,7 +99,7 @@ class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBin
     _changeImage();
   }
 
-  void _startRepeating(TapDownDetails details) {
+  void _startRepeating() {
     print('_startRepeating!');
     widget._timer ??= Timer.periodic(Duration(milliseconds: widget._repeatDuration), (timer) {
         if (mounted) {
@@ -108,7 +108,7 @@ class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBin
       });
   }
 
-  void _stopRepeating(TapUpDetails details) {
+  void _stopRepeating() {
     print('_stopRepeating!');
     widget._timer?.cancel();
     widget._timer = null;
@@ -144,8 +144,13 @@ class _CustomButtonRepeatState extends State<CustomButtonRepeat> with WidgetsBin
     return Padding(
       padding: widget.margin ?? EdgeInsets.zero,
       child: GestureDetector(
-        onTapDown: (TapDownDetails details) => _startRepeating(details),
-        onTapUp: (TapUpDetails details) => _stopRepeating(details),
+        onTapDown: (TapDownDetails details) { print('onTapDown'); _startRepeating(); },
+
+        onTapUp: (TapUpDetails details) { print('onTapUp'); _stopRepeating(); },
+        onLongPressEnd: (details) { print('onLongPressEnd'); _stopRepeating(); },
+        onForcePressEnd: (details) { print('onPanEnd'); _stopRepeating(); },
+        onHorizontalDragEnd: (details) { print('onHorizontalDragEnd'); _stopRepeating(); },
+        onVerticalDragEnd: (details) { print('onVerticalDragEnd'); _stopRepeating(); },
         child: _buildCircleImage(),
       ),
     );
